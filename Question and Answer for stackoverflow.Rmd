@@ -1,0 +1,7 @@
+---
+output: html_document
+---
+
+`position_dodge()` is being ignored by the `geom_error` bar in a somewhat complicated plot. 
+
+`df <- data.frame( )`

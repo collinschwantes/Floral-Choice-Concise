@@ -4,6 +4,7 @@ require(ggplot2)
 require(lme4)
 require(plyr)
 require(dplyr)
+require(gridExtra)
 
 #Load ambush bug data####
 bugs<-read.csv("./Ambush_032715.csv")
@@ -169,26 +170,29 @@ VSFP_comp <- rbind(beetSFP,AbugSFP)
 
 str(VSFP_comp)
 
-Visit.plot.pair <- ggplot(VSFP_comp, aes(x = as.factor(Pair), y = Visits )) + 
-  geom_errorbar(aes(ymin = Visits - se, ymax = Visits + se), width = .1) +
+Visit.plot.pair <- ggplot(VSFP_comp, aes(x = as.factor(Pair), y = Visits, ymax = max(Visits))) + 
   theme_bw(base_size = 20, base_family = "") +
-  theme(legend.position="none")  +
-  geom_point(aes(colour= Treatment, fill = Treatment, shape = Occupant), size = 5) +
-  scale_fill_manual( name = "Occupancy",
+  theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
+  geom_point(aes(shape = Treatment), 
+             na.rm = T,
+             position = position_dodge(.9), 
+             size = 5,
+             stat = "identity") +
+  geom_errorbar(aes(group = Treatment,
+                    ymin = (Visits - se), 
+                    ymax = (Visits + se), 
+                    width = .2),
+                na.rm =T,
+                stat = "identity",
+                position = position_dodge(width = .9)) +
+  scale_shape_manual(values=c(1,19),
+                     name  ="Occupancy",
                      breaks=c("control", "treated"),
-                     labels=c("Absent", "Present"),
-                     values=c("white", "#fc8d59")) + 
-  scale_colour_manual( name = "Occupancy",
-                       breaks=c("control", "treated"),
-                       labels=c("Absent", "Present"),
-                       values=c("#91bfdb", "#fc8d59")) +
+                     labels=c("Absent", "Present")) +
   xlab("Observation") +
   ylab("Visits") +
   expand_limits(y=c(0,15)) +
   facet_wrap(~Occupant, nrow=1)
-
-
-
 
 # Visits by treatment
 VSFTPabeets <- ddply(SFabeets,.(Treatment,Pair,Day),summarise,
@@ -216,18 +220,9 @@ VSFT_comp <- rbind(beetSFT,AbugSFT)
 Visit.t.plot <- ggplot(VSFT_comp, aes(x=Treatment, y=Visits)) + 
   geom_errorbar(aes(ymin=Visits-se, ymax=Visits+se), width=.1) +
   theme_bw(base_size = 20, base_family = "") +
-  geom_point(aes(colour= Treatment, fill = Treatment,shape = Occupant), size = 5) +
+  geom_point(size = 5) +
   scale_x_discrete(breaks=c("control", "treated"),
                    labels=c("Absent", "Present")) +
-  geom_point(aes(colour= Treatment, fill = Treatment, shape = Occupant), size = 5) +
-  scale_fill_manual( name = "Occupancy",
-                     breaks=c("control", "treated"),
-                     labels=c("Absent", "Present"),
-                     values=c("white", "#fc8d59")) + 
-  scale_colour_manual( name = "Occupancy",
-                       breaks= c("control", "treated"),
-                       labels= c("Absent", "Present"),
-                       values= c("#91bfdb", "#fc8d59")) +
   xlab("Occupancy") +
   ylab("Visits") +
   facet_wrap(~Occupant, nrow=1)  
@@ -332,15 +327,7 @@ Duration.plot <- ggplot(SF_comp, aes(x=Treatment, y= Duration.s. )) +
   theme_bw(base_size = 20, base_family = "") +
   scale_x_discrete(breaks=c("control", "treated"),
                    labels=c("Absent", "Present")) +
-  geom_point(aes(colour= Treatment, fill = Treatment, shape = Occupant), size = 5) +
-  scale_fill_manual( name = "Occupancy",
-                     breaks=c("control", "treated"),
-                     labels=c("Absent", "Present"),
-                     values=c("white", "#fc8d59")) + 
-  scale_colour_manual( name = "Occupancy",
-                       breaks=c("control", "treated"),
-                       labels=c("Absent", "Present"),
-                       values=c("#91bfdb", "#fc8d59")) +
+  geom_point(size = 5) +
   xlab("Occupancy") +
   ylab("Duration (s)") +
   facet_wrap(~Occupant, nrow=1)
@@ -380,21 +367,31 @@ AbugDSFP <- ddply(SFabugs,.(Treatment,Pair),summarise,
 
 DSFP_comp <- rbind(beetDSFP,AbugDSFP)
 
-Duration.plot.pair <- ggplot(DSFP_comp, aes(x=as.factor(Pair), y=Duration.s. )) + 
-  geom_errorbar(aes(ymin=Duration.s.-se, ymax=Duration.s.+se), width=.1) +
+
+
+
+Duration.plot.pair <- ggplot(DSFP_comp, aes(x = as.factor(Pair), y = Duration.s.)) + 
   theme_bw(base_size = 20, base_family = "") +
-  theme(legend.position="none")  +
-  geom_point(aes(colour= Treatment, fill = Treatment, shape = Occupant), size = 5) +
-  scale_fill_manual( name = "Occupancy",
+  theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
+  geom_point(aes(shape = Treatment), 
+             na.rm = T,
+             position = position_dodge(.9), 
+             size = 5,
+             stat = "identity") +
+  geom_errorbar(aes(group = Treatment,
+                    ymin = (Duration.s. - se), 
+                    ymax = (Duration.s. + se), 
+                    width = .2),
+                na.rm =T,
+                stat = "identity",
+                position = position_dodge(width = .9)) +
+  scale_shape_manual(values=c(1,19),
+                     name  ="Occupancy",
                      breaks=c("control", "treated"),
-                     labels=c("Absent", "Present"),
-                     values=c("white", "#fc8d59")) + 
-  scale_colour_manual( name = "Occupancy",
-                       breaks=c("control", "treated"),
-                       labels=c("Absent", "Present"),
-                       values=c("#91bfdb", "#fc8d59")) +
+                     labels=c("Absent", "Present")) +
   xlab("Observation") +
   ylab("Duration (s)") +
+  expand_limits(y=c(0,15)) +
   facet_wrap(~Occupant, nrow=1)
 
 
