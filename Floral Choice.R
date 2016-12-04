@@ -9,12 +9,24 @@ require(gridExtra)
 #Load ambush bug data####
 bugs<-read.csv("./Ambush_032715.csv")
 
-str(abugs)
+str(bugs)
 levels(abugs$Treatment)
 levels(abugs$Block)
 levels(abugs$Genus)
 levels(abugs$gender)
 levels(abugs$land)
+
+View(bugs)
+
+## only abug data
+Obugs <- bugs[ grepl(pattern =  "Ambush |Ambush Bug",x = bugs$Genus),]
+length(Obugs$Day)
+length(bugs$Day)
+157/sqrt(30)
+
+sqrt(100)/sqrt(4)
+
+
 
 ## removing rows that don't have bee data
 ## comparing only bee visits
@@ -42,6 +54,28 @@ beets<-read.csv("./beetle_031915.csv")
 str(beets)
 View(beets)
 
+## only beetle data
+Obeets <- beets[beets$Treatment == "treated",]
+ObeetsL <- Obeets[ grepl(pattern =  "beetle left on treated|beetle left on treatment|beetle left",x = Obeets$Genus),]
+length(ObeetsL$Day)
+length(Obeets$Day)
+
+# the duration of a beetle leaving a flower was recorded as the total amount of the
+# observation the beetle spent off the flower. So 600 s - time away = obs duration and 
+# the amount of time the beetle spent of the flower 
+
+mean_se(c(rep(600,88-22),600-ObeetsL$duration.s.))/60
+
+8.556 - 8.254
+
+.302*60
+.556*60
+
+#SD / sqrt (Number of obvs) = standard error
+187.2/sqrt(30)
+
+3*60
+
 ## removing rows that don't have bee data
 abeets <- beets[ beets$Genus != "beetle left on treated",]
 abeets <- abeets[abeets$Genus != "beetle left on treatment",]
@@ -58,6 +92,17 @@ View(abeets)
 abeets <- abeets[ abeets$nectar != "",]
 abeets <- abeets[ abeets$pollen != "",]
 abeets <- abeets[ abeets$land != "",]
+
+#male bee visit durations
+mean_se(abeets$duration.s.[abeets$gender == "male"])
+
+mean(abeets$duration.s.[abeets$gender == "male"]) 
+  std_er(abeets$duration.s.[abeets$gender == "male"])
+
+
+
+mean_se(abeets$duration.s.[abeets$gender == "female"])
+
 
 #select only femalte bees
 Fabeets <- abeets[ abeets$gender == "female",]
@@ -170,9 +215,13 @@ VSFP_comp <- rbind(beetSFP,AbugSFP)
 
 str(VSFP_comp)
 
+labtxt <- data.frame(Pair = rep(.75,2), Visits = rep(15.25,2), label = c("C","D"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
+
 Visit.plot.pair <- ggplot(VSFP_comp, aes(x = as.factor(Pair), y = Visits, ymax = max(Visits))) + 
   theme_bw(base_size = 20, base_family = "") +
   theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
+  theme(panel.grid.minor= element_blank(),
+        panel.grid.major=element_line(colour = "#111111",size = 0.1)) +
   geom_point(aes(shape = Treatment), 
              na.rm = T,
              position = position_dodge(.9), 
@@ -192,8 +241,10 @@ Visit.plot.pair <- ggplot(VSFP_comp, aes(x = as.factor(Pair), y = Visits, ymax =
   xlab("Observation") +
   ylab("Visits") +
   expand_limits(y=c(0,15)) +
-  facet_wrap(~Occupant, nrow=1)
-
+  facet_wrap(~Occupant,nrow = 1)+ 
+  theme(strip.background = element_rect(colour="#111111", fill="#ffffff")) +
+  geom_text(data = labtxt,aes(Pair,Visits,label = label, group = NULL), size = 6)
+  
 # Visits by treatment
 VSFTPabeets <- ddply(SFabeets,.(Treatment,Pair,Day),summarise,
                      Visit = length(duration.s.))
@@ -217,17 +268,30 @@ AbugSFT <- ddply(VSFTPabugs,.(Treatment),summarise,
 
 VSFT_comp <- rbind(beetSFT,AbugSFT)
 
+#label df
+
+labtxt1 <- data.frame(Treatment = rep(.5,2), Visits = rep(5.75,2), label = c("A","B"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
+
 Visit.t.plot <- ggplot(VSFT_comp, aes(x=Treatment, y=Visits)) + 
   geom_errorbar(aes(ymin=Visits-se, ymax=Visits+se), width=.1) +
   theme_bw(base_size = 20, base_family = "") +
+  theme(panel.grid.minor= element_blank(),
+        panel.grid.major=element_line(colour = "#111111",size = 0.1)) +
   geom_point(size = 5) +
   scale_x_discrete(breaks=c("control", "treated"),
                    labels=c("Absent", "Present")) +
   xlab("Occupancy") +
   ylab("Visits") +
-  facet_wrap(~Occupant, nrow=1)  
+  expand_limits(y = c(0,6)) +
+  facet_wrap(~Occupant, nrow=1) + 
+  theme(strip.background = element_rect(colour="#111111", fill="#ffffff")) +
+  geom_text(data = labtxt1,aes(Treatment,Visits,label = label, group = NULL), size = 6)
 
-grid.arrange(Visit.t.plot, Visit.plot.pair, nrow=2)
+
+
+g <- arrangeGrob(Visit.t.plot, Visit.plot.pair, nrow=2)
+
+ggsave(filename = "./figures/visit_plot.eps",device = "eps",plot = g,units = "in",width = 12,height = 8)
 
 ########Chi square test for landing ##########
 chisq.test(x = SFabeets$land, y = SFabeets$Treatment)
@@ -320,6 +384,7 @@ AbugSF <- ddply(SFabugs,.(Treatment),summarise,
 
 SF_comp <- rbind(beetSF,AbugSF)
 
+labtxt2 <- data.frame(Treatment = rep(.5,2), Duration.s. = rep(14,2), label = c("A","B"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
 
 #Effect of Floral occupant on female solitary bee visit duration
 Duration.plot <- ggplot(SF_comp, aes(x=Treatment, y= Duration.s. )) + 
@@ -330,7 +395,11 @@ Duration.plot <- ggplot(SF_comp, aes(x=Treatment, y= Duration.s. )) +
   geom_point(size = 5) +
   xlab("Occupancy") +
   ylab("Duration (s)") +
-  facet_wrap(~Occupant, nrow=1)
+  expand_limits(y = c(0,8.5)) + 
+  facet_wrap(~Occupant, nrow=1) + 
+  theme(strip.background = element_rect(colour="#111111", fill="#ffffff")) +
+  geom_text(data = labtxt2,aes(Treatment,Duration.s.,label = label, group = NULL), size = 6)
+
 
 # Duration by pair
 log_beetDSFP <- ddply(SFabeets,.(Treatment,Pair),summarise,
@@ -371,7 +440,7 @@ DSFP_comp <- rbind(beetDSFP,AbugDSFP)
 
 
 Duration.plot.pair <- ggplot(DSFP_comp, aes(x = as.factor(Pair), y = Duration.s.)) + 
-  theme_bw(base_size = 20, base_family = "") +
+  theme_minimal(base_size = 20, base_family = "") +
   theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
   geom_point(aes(shape = Treatment), 
              na.rm = T,
