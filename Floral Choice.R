@@ -219,7 +219,7 @@ labtxt <- data.frame(Pair = rep(.75,2), Visits = rep(15.25,2), label = c("C","D"
 
 Visit.plot.pair <- ggplot(VSFP_comp, aes(x = as.factor(Pair), y = Visits, ymax = max(Visits))) + 
   theme_bw(base_size = 20, base_family = "") +
-  theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
+  theme(legend.justification=c(0,1), legend.position=c(.8,0.75)) +
   theme(panel.grid.minor= element_blank(),
         panel.grid.major=element_line(colour = "#111111",size = 0.1)) +
   geom_point(aes(shape = Treatment), 
@@ -384,12 +384,14 @@ AbugSF <- ddply(SFabugs,.(Treatment),summarise,
 
 SF_comp <- rbind(beetSF,AbugSF)
 
-labtxt2 <- data.frame(Treatment = rep(.5,2), Duration.s. = rep(14,2), label = c("A","B"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
+labtxt2 <- data.frame(Treatment = rep(.5,2), Duration.s. = rep(9,2), label = c("A","B"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
 
 #Effect of Floral occupant on female solitary bee visit duration
 Duration.plot <- ggplot(SF_comp, aes(x=Treatment, y= Duration.s. )) + 
   geom_errorbar(aes(ymin=Duration.s.-se, ymax=Duration.s.+se), width=.1) +
   theme_bw(base_size = 20, base_family = "") +
+  theme(panel.grid.minor= element_blank(),
+        panel.grid.major=element_line(colour = "#111111",size = 0.1)) +
   scale_x_discrete(breaks=c("control", "treated"),
                    labels=c("Absent", "Present")) +
   geom_point(size = 5) +
@@ -436,12 +438,14 @@ AbugDSFP <- ddply(SFabugs,.(Treatment,Pair),summarise,
 
 DSFP_comp <- rbind(beetDSFP,AbugDSFP)
 
-
+labtxt3 <- data.frame(Pair = rep(1,2), Duration.s. = rep(50,2), label = c("C","D"), Occupant = as.factor(c("Ambush Bug","Beetle")) )
 
 
 Duration.plot.pair <- ggplot(DSFP_comp, aes(x = as.factor(Pair), y = Duration.s.)) + 
-  theme_minimal(base_size = 20, base_family = "") +
-  theme(legend.justification=c(1,0), legend.position=c(1,0.5)) +
+  theme_bw(base_size = 20, base_family = "") +
+  theme(legend.justification=c(0,1), legend.position=c(.8,.75)) +
+  theme(panel.grid.minor= element_blank(),
+        panel.grid.major=element_line(colour = "#111111",size = 0.1)) +
   geom_point(aes(shape = Treatment), 
              na.rm = T,
              position = position_dodge(.9), 
@@ -461,10 +465,17 @@ Duration.plot.pair <- ggplot(DSFP_comp, aes(x = as.factor(Pair), y = Duration.s.
   xlab("Observation") +
   ylab("Duration (s)") +
   expand_limits(y=c(0,15)) +
-  facet_wrap(~Occupant, nrow=1)
+  facet_wrap(~Occupant, nrow=1) +
+  theme(strip.background = element_rect(colour="#111111", fill="#ffffff")) +
+  geom_text(data = labtxt3,aes(Pair,Duration.s.,label = label, group = NULL), size = 6)
 
 
-grid.arrange( Duration.plot,Duration.plot.pair, nrow=2)
+
+ g1 <- arrangeGrob(Duration.plot,Duration.plot.pair, nrow=2)
+
+
+
+ggsave(filename = "./figures/duration_plot.eps",device = "eps",plot = g1,units = "in",width = 12,height = 8)
 
 #models
 
