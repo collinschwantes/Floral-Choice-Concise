@@ -42,6 +42,6 @@ std_er <- function(x) {
 std_er(x = na.omit(Bug_density))
 
 
-Bug_percent <- (floral_data$Presence>1)/length(floral_data$flowers_plant)
+Bug_percent <- sum(floral_data$Presence)/length(floral_data$flowers_plant)
 
 
