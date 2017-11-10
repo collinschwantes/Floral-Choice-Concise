@@ -1,3 +1,8 @@
+
+list.dirs()
+
+FilePath <- list.files(path = "./figures",pattern = "Sunflower Densities_040615a.csv",full.names = T)
+
 floral_data<- read.csv(file = "/Users/featherlite569/Documents/Floral_Choice /floral_choice/Figures/Sunflower Densities_040615a.csv")
 
 str(floral_data)
@@ -35,3 +40,8 @@ std_er <- function(x) {
 }
 
 std_er(x = na.omit(Bug_density))
+
+
+Bug_percent <- (floral_data$Presence>1)/length(floral_data$flowers_plant)
+
+
