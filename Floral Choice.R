@@ -123,9 +123,10 @@ VSFabeets <- ddply(SFabeets,.(Treatment,Block,Day,Pair),summarise,
                    Visit = length(duration.s.))
 hist(VSFabeets$Visit, breaks  = 10)
 
-visit.trmtB1<- glmer( Visit ~ Treatment + (1|Pair) + (1|Day) + (1|Block), 
+visit.trmtB1<- glmer(Visit ~ Treatment + (1|Pair) + (1|Day) + (1|Block), 
                       data=VSFabeets, 
                       family= poisson)
+
 summary(visit.trmtB1)
 plot(allEffects(visit.trmtB1))
 
