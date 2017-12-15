@@ -16,7 +16,9 @@ levels(abugs$Genus)
 levels(abugs$gender)
 levels(abugs$land)
 
-View(bugs)
+#View(bugs)
+#these columns need to be factors
+bugs[,c(1:3)] <- lapply(bugs[,c(1:3)], factor)
 
 ## only abug data
 Obugs <- bugs[ grepl(pattern =  "Ambush |Ambush Bug",x = bugs$Genus),]
@@ -52,7 +54,10 @@ View(SFabugs)
 beets<-read.csv("./beetle_031915.csv")
 
 str(beets)
-View(beets)
+
+sView(beets)
+
+beets[,c(1:3)] <- lapply(beets[,c(1:3)], factor)
 
 ## only beetle data
 Obeets <- beets[beets$Treatment == "treated",]
@@ -145,6 +150,8 @@ visit.trmtB3<- glmer( Visit ~ Treatment + (1|Pair),
 
 summary(visit.trmtB3)
 plot(allEffects(visit.trmtB3))
+
+hist(VSFabeets$Visit)
 
 visit.trmtB4<- glm( Visit ~ Treatment, 
                     data=VSFabeets, 
@@ -551,6 +558,9 @@ ggplot(abts, aes(x=Day, y=duration.s., colour=Treatment)) +
 
 
 
+hist(beets$duration.s.)
+range(beets$duration.s.)
+
 ## t-test of beetle observations
 cbeets <- beets[beets$Treatment == "control", ]
 cbeets <- cbeets[cbeets$Genus != "beetle left on treated",]
@@ -559,6 +569,9 @@ cbeets <- cbeets <- cbeets[cbeets$Genus != "no bees",]
 tbeets <- beets[beets$Treatment == "treated", ]
 tbeets <- tbeets[tbeets$Genus != "beetle left",]
 tbeets <- tbeets[tbeets$Genus != "no bees",]
+
+hist(log(tbeets$duration.s.))
+y <- rchisq(500, df = 3)
 
 t.test(tbeets$duration.s.,cbeets$duration.s.) #t.test assumes normal distribution
 
