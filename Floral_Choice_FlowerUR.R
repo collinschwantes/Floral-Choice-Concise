@@ -20,9 +20,9 @@ str(bugs)
 
 
 
-### Think about observation as unit of replication 
+### Think about flower as unit of replication 
 
-df_visits <- as.data.frame(xtabs( (duration.s.>0) ~ sex + Pair + Block+ Treatment + Day, data = bugs[bugs$Genus == "Melissodes",]))
+df_visits <- as.data.frame(xtabs( (duration.s.>0) ~ Flower + sex + Treatment + Block, data = bugs[bugs$Genus == "Melissodes",]))
 
 str(df_visits)
 
@@ -31,7 +31,7 @@ hist((df_visits$Freq),breaks = 30)
 ggplot(data = df_visits, aes(x = Treatment, y = Freq, color = sex)) +
   geom_point(position = position_jitter(width = .2)) +
   geom_smooth(method = "glm", method.args = list(family = "Binomial")) +
-  ylab("Visits per Observation")
+  ylab("Visits per Flower")
 
 
 hist( sqrt(df_visits$Freq))
@@ -44,7 +44,6 @@ anova(lm1)
 
 lm2 <- lm(formula = sqrt(Freq) ~ sex + Treatment, data = df_visits)
 
-asinas (0)
 anova(lm2)
 
 plot.design(sqrt(Freq) ~ sex + Treatment, data = df_visits)
@@ -52,7 +51,7 @@ plot.design(sqrt(Freq) ~ sex + Treatment, data = df_visits)
 ## Proportion Landing
 str(bugs)
 
-df_land <- as.data.frame(xtabs( land == "yes" ~ sex + Pair + Block+ Treatment + Day, data = bugs[bugs$Genus == "Melissodes",]))
+df_land <- as.data.frame(xtabs( land == "yes" ~ Flower + sex + Treatment + Block, data = bugs[bugs$Genus == "Melissodes",]))
 
 str(df_land)
 
@@ -60,13 +59,13 @@ df_land$visits <- df_visits$Freq
 
 df_land$Proportion <- NA
 
-df_land[df_land$visits != 0,8] <- df_land[df_land$visits != 0,6]/df_land[df_land$visits != 0,7]
+df_land[df_land$visits != 0,7] <- df_land[df_land$visits != 0,5]/df_land[df_land$visits != 0,6]
 
 head(df_land)
 
-ggplot(data = df_land,aes(y = Proportion, x = as.numeric(Pair), color = Treatment)) +
+ggplot(data = df_land,aes(y = Proportion, x = Treatment)) +
+  geom_violin() +
   geom_point(position = position_jitter(.2)) +
-  geom_smooth(method = "glm",method.args= list(family = "binomial")) +
   ylab("Proportion Landed") +
   facet_wrap(~sex)
 
@@ -74,7 +73,7 @@ ggplot(data = df_land,aes(y = Proportion, x = as.numeric(Pair), color = Treatmen
 
 str(bugs)
 
-df_pollen <- as.data.frame(xtabs( pollen == "yes" ~ sex + Pair + Block+ Treatment + Day, data = bugs[bugs$Genus == "Melissodes",]))
+df_pollen <- as.data.frame(xtabs( pollen == "yes" ~ Flower + sex + Treatment + Block, data = bugs[bugs$Genus == "Melissodes",]))
 
 str(df_pollen)
 
@@ -82,13 +81,14 @@ df_pollen$land <- df_land$Freq
 
 df_pollen$Proportion <- NA
 
-df_pollen[df_pollen$land != 0,8] <- df_pollen[df_pollen$land != 0,6]/df_pollen[df_pollen$land != 0,7]
+df_pollen[df_pollen$land != 0,7] <- df_pollen[df_pollen$land != 0,5]/df_pollen[df_pollen$land != 0,6]
 
 head(df_pollen)
 
-ggplot(data = df_pollen,aes(y = Proportion, x = as.numeric(Pair), color = Treatment)) +
+ggplot(data = df_pollen,aes(y = Proportion, x = Treatment)) +
+  geom_violin() +
   geom_point(position = position_jitter(.2)) +
-  geom_smooth(method = "glm",method.args= list(family = "binomial")) +
+  #geom_smooth(method = "glm",method.args= list(family = "binomial")) +
   ylab("Proportion pollen|landed") +
   facet_wrap(~sex)
 
@@ -96,7 +96,7 @@ ggplot(data = df_pollen,aes(y = Proportion, x = as.numeric(Pair), color = Treatm
 ggplot(data = df_pollen,aes(y = Proportion, x = Treatment)) +
   geom_violin() +
   geom_point(position = position_jitter(.2)) +
-    #geom_smooth(method = "glm",method.args= list(family = "binomial")) +
+  #geom_smooth(method = "glm",method.args= list(family = "binomial")) +
   ylab("Proportion pollen|landed") +
   facet_wrap(~sex)
 
@@ -104,7 +104,7 @@ ggplot(data = df_pollen,aes(y = Proportion, x = Treatment)) +
 
 str(bugs)
 
-df_nectar <- as.data.frame(xtabs( nectar == "yes" ~ sex + Pair + Block+ Treatment + Day, data = bugs[bugs$Genus == "Melissodes",]))
+df_nectar <- as.data.frame(xtabs( nectar == "yes" ~ Flower + sex + Treatment + Block, data = bugs[bugs$Genus == "Melissodes",]))
 
 str(df_nectar)
 
@@ -112,24 +112,21 @@ df_nectar$land <- df_land$Freq
 
 df_nectar$Proportion <- NA
 
-df_nectar[df_nectar$land != 0,8] <- df_nectar[df_nectar$land != 0,6]/df_nectar[df_nectar$land != 0,7]
+df_nectar[df_nectar$land != 0,7] <- df_nectar[df_nectar$land != 0,5]/df_nectar[df_nectar$land != 0,6]
 
 head(df_nectar)
 
-ggplot(data = df_nectar,aes(y = Proportion, x = as.numeric(Pair), color = Treatment)) +
+ggplot(data = df_nectar,aes(y = Proportion, x = Treatment)) +
   geom_point(position = position_jitter(.2)) +
   geom_smooth(method = "glm",method.args= list(family = "binomial")) +
   ylab("Proportion nectar|landed") +
   facet_wrap(~sex)
 
+hist(df_nectar$Proportion,breaks = 10)
 
-ggplot(data = df_nectar,aes(y = Proportion, x = Treatment)) +
-  geom_violin() +
-  geom_point(position = position_jitter(.2)) +
-  #geom_smooth(method = "glm",method.args= list(family = "binomial")) +
-  ylab("Proportion nectar|landed") +
-  facet_wrap(~sex)
+glm(formula = Proportion ~ Pair,family = binomial(link = 'logit'),data = df_nectar)
 
+chisq.test()
 
 
 
