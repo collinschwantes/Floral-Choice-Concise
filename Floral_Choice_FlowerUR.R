@@ -117,6 +117,7 @@ df_nectar[df_nectar$land != 0,7] <- df_nectar[df_nectar$land != 0,5]/df_nectar[d
 head(df_nectar)
 
 ggplot(data = df_nectar,aes(y = Proportion, x = Treatment)) +
+  geom_violin() +
   geom_point(position = position_jitter(.2)) +
   geom_smooth(method = "glm",method.args= list(family = "binomial")) +
   ylab("Proportion nectar|landed") +
@@ -124,9 +125,35 @@ ggplot(data = df_nectar,aes(y = Proportion, x = Treatment)) +
 
 hist(df_nectar$Proportion,breaks = 10)
 
-glm(formula = Proportion ~ Pair,family = binomial(link = 'logit'),data = df_nectar)
+mell_df <- bugs[bugs$Genus == "Melissodes",]
 
-chisq.test()
+str(mell_df)
+
+mell_df$Poll_01 <- gsub(pattern = "yes",replacement = 1,x = mell_df$pollen)
+mell_df$Poll_01 <- gsub(pattern = "no",replacement = 0,x = mell_df$Poll_01)
+
+mell_df$Poll_01 <- as.numeric(mell_df$Poll_01)
+
+contrasts(as.factor(mell_df$Treatment))
+
+glm1 <- glm(formula = Poll_01 ~ as.factor(sex) + as.factor(Treatment),family = binomial(link = 'logit'),data = mell_df)
+
+summary(glm1)
+
+plot(glm1)
+
+anova(glm1,test = "Chisq")
+
+
+
+glm1 <- glm(formula = Poll_01 ~ as.factor(Treatment),family = binomial(link = 'logit'),data = mell_df[mell_df$sex == "male",])
+
+summary(glm1)
+
+plot(glm1)
+
+anova(glm1,test = "Chisq")
+
 
 
 
