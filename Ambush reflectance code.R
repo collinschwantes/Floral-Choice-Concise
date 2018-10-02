@@ -32,6 +32,8 @@ attach(spec)
 
 
 # package for organizing, analyzing, and visualizing spec data
+## paper describing package and methods https://besjournals.onlinelibrary.wiley.com/doi/epdf/10.1111/2041-210X.12069
+
 library('pavo')
 
 
@@ -80,20 +82,41 @@ lines(Wavelength, SRA, type="l",xlab="Wavelength (nm)", ylab="Reflectance (%)", 
 
 legend(300,60, c("ray flowers", "disc flowers"), fill=c("darkgoldenrod", "darkgoldenrod2"), bty="n")
 
-# Combined for female and flowers, AKA Figure 3
+# Combined for female and flowers, AKA Figure 3 
+
+dir.create("./Figures")
+png(filename = "./Figures/Reflectance_FemaleFlowerf3.png",width = 5,height = 4,units = "in",res = 300)
 
 plot(Wavelength, SDA, type="l", xlab="Wavelength (nm)", ylab="Reflectance (%)", cex.lab=1.5,ylim=c(0,60),panel.first=polygon(c(Wavelength,rev(Wavelength)),c(SDAm[,1],rev(SDAm[,2])),border=NA, col=rgb(.55,.28,0.03, 0.75)))
 lines(Wavelength, SRA, type="l",xlab="Wavelength (nm)", ylab="Reflectance (%)", cex.lab=1.5,ylim=c(0,60),panel.first=polygon(c(Wavelength,rev(Wavelength)),c(SRAm[,1],rev(SRAm[,2])),border=NA, col=rgb(1,.84,0, 0.75)))
 lines(Wavelength, DT, type="l", xlab="Wavelength (nm)", ylab="Reflectance (%)", cex.lab=1.5,ylim=c(0,60),panel.first=polygon(c(Wavelength,rev(Wavelength)),c(DTm[,1],rev(DTm[,2])),border=NA, col=rgb(.55,.41,.08, 0.75)))
 lines(Wavelength, VA, type="l",xlab="Wavelength (nm)", ylab="Reflectance (%)", cex.lab=1.5,ylim=c(0,60),panel.first=polygon(c(Wavelength,rev(Wavelength)),c(VAm[,1],rev(VAm[,2])),border=NA, col=rgb(.80,.58,0,0.75)))
-legend(300,60, c("disc petals", "ray petals", "notum", "sternum"), fill=c(rgb(.55,.28,0.03, 0.75), rgb(1,.84,0, 0.75),rgb(.55,.41,.08, 0.75),rgb(.80,.58,0,0.75)), bty="n")
+legend(300,60, 
+       c("ray petals",  "sternum", "notum", "disc petals"), 
+       fill= c(rgb(1,.84,0, 0.75),
+               rgb(.80,.58,0,0.75),
+               rgb(.55,.41,.08, 0.75),
+               rgb(.55,.28,0.03, 0.75)),
+       bty="n")
+
+dev.off()
+
+## Very interesting that ventral coloration is more like the ray flower
+## Imagine seeing the ambush bug on the plane of the sunflower disc
+## looking at an ambush bug from the plane of the flower, a visitor 
+## would likely see the ventral surface and ray petals. 
 
 #time to try pavo
+str(ref)
+
 reflec<-ref[,c(1:53)]
 is.rspec(reflec)
 dat.spec<-as.rspec(reflec,lim=c(300,700))
 is.rspec(dat.spec)
 head(dat.spec)
+tail(dat.spec)
+
+str(dat.spec)
 
 #subset
 FDA<-dat.spec[,1:9]
